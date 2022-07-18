@@ -18,8 +18,11 @@ class WebSecurityConfig(private val jwtFilter: JwtFilter): WebSecurityConfigurer
     override fun configure(http: HttpSecurity) {
         http.csrf().disable()
 
-        http.authorizeRequests()
-            .antMatchers("/api/account/signup", "api/account/signin").permitAll()
+        http.authorizeHttpRequests()
+            .antMatchers("/api/account/**").permitAll()
+            .and()
+            .authorizeRequests()
+            .antMatchers("/api/account/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -33,9 +36,5 @@ class WebSecurityConfig(private val jwtFilter: JwtFilter): WebSecurityConfigurer
     @Bean
     override fun authenticationManagerBean(): AuthenticationManager {
         return super.authenticationManagerBean()
-    }
-
-    override fun configure(web: WebSecurity) {
-        web.ignoring().antMatchers("/api/account/**")
     }
 }
