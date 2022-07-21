@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse
 @Component
 class JwtFilter(private val jwtUtils: JwtUtils): OncePerRequestFilter() {
 
+    //token 으로 권한을 체크하고 authentication 을 생성해서 security 인증 필터를 통과하도록 조치
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,

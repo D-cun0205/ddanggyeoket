@@ -13,16 +13,28 @@ import java.util.*
 @Component
 class JwtUtils(private val userDetailsService: UserDetailsServiceImpl) {
 
-    val EXPIRE_TIME: Long = 1000L * 60 * 3
+    val EXPIRE_TIME: Long = 60L * 60 * 24
     val JWT_SECRET: String = "ddanggyeo"
     val SIGNATURE_ALG: SignatureAlgorithm = SignatureAlgorithm.HS256
 
+    //토큰 유효기간 1일
     fun createToken(email: String): String {
         val claims: Claims =  Jwts.claims()
         claims["email"] = email
         return Jwts.builder()
             .setClaims(claims)
             .setExpiration(Date(System.currentTimeMillis() + EXPIRE_TIME))
+            .signWith(SIGNATURE_ALG, JWT_SECRET)
+            .compact()
+    }
+
+    //리프레쉬 토큰 유효기간 7일
+    fun createRefreshToken(email: String): String {
+        val claims: Claims = Jwts.claims()
+        claims["email"] = email
+        return Jwts.builder()
+            .setClaims(claims)
+            .setExpiration(Date(System.currentTimeMillis() + EXPIRE_TIME * 7))
             .signWith(SIGNATURE_ALG, JWT_SECRET)
             .compact()
     }

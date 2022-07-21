@@ -10,6 +10,8 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 @Service
 class AccountService(private val accountRepository: AccountRepository,
@@ -29,11 +31,29 @@ class AccountService(private val accountRepository: AccountRepository,
         }
 
         val token = jwtUtils.createToken(accountDto.email)
-        return token
+        val refreshToken = jwtUtils.createRefreshToken(accountDto.email)
+        return "{token:$token, refreshToken:$refreshToken}"
     }
 
     fun signup(accountDto: AccountDto): String {
         accountRepository.save(Account(accountDto.email, passwordEncoder.encode(accountDto.password)))
         return accountDto.email
+    }
+
+    fun refreshToken(request: HttpServletRequest, response: HttpServletResponse): String? {
+        val header = request.getHeader("authorization")
+        var refreshAccessToken: String? = null
+        if (header != null && header.startsWith("Bearer ")) {
+            try {
+                val refreshToken = header.substring("Bearer ".length)
+                val email = jwtUtils.parseEmail(refreshToken)
+                //refreshToken, email 로 RDB or NOSQL(redis) 에 유효성 체크하여 동일한 값이 있으면 accessToken 재발급
+                refreshAccessToken = jwtUtils.createToken(email)
+            } catch (e: Exception) {
+                response.setHeader("error", e.message)
+                response.status
+            }
+        }
+        return refreshAccessToken
     }
 }
