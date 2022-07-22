@@ -4,6 +4,8 @@ import com.market.ddanggyeo.account.dto.AccountDto
 import com.market.ddanggyeo.account.entity.Account
 import com.market.ddanggyeo.account.repository.AccountRepository
 import com.market.ddanggyeo.jwt.JwtUtils
+import com.market.ddanggyeo.redis.hashEntity.TokenHash
+import com.market.ddanggyeo.redis.repository.RefreshTokenRedisRepository
 import com.market.ddanggyeo.security.WebSecurityConfig
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
@@ -17,7 +19,8 @@ import javax.servlet.http.HttpServletResponse
 class AccountService(private val accountRepository: AccountRepository,
                      private val passwordEncoder: PasswordEncoder,
                      private val authenticationManager: AuthenticationManager,
-                     private val jwtUtils: JwtUtils) {
+                     private val jwtUtils: JwtUtils,
+                     private val refreshTokenRedisRepository: RefreshTokenRedisRepository) {
 
     private val log = org.slf4j.LoggerFactory.getLogger(WebSecurityConfig::class.java)
 
@@ -32,6 +35,7 @@ class AccountService(private val accountRepository: AccountRepository,
 
         val token = jwtUtils.createToken(accountDto.email)
         val refreshToken = jwtUtils.createRefreshToken(accountDto.email)
+        refreshTokenRedisRepository.save(TokenHash(accountDto.email, refreshToken))
         return "{token:$token, refreshToken:$refreshToken}"
     }
 
