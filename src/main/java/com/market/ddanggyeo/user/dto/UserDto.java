@@ -1,8 +1,11 @@
 package com.market.ddanggyeo.user.dto;
 
+import lombok.RequiredArgsConstructor;
+
 import javax.persistence.*;
 
 @Entity
+@RequiredArgsConstructor
 public class UserDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
