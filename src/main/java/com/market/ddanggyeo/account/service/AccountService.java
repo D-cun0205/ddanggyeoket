@@ -50,6 +50,8 @@ public class AccountService {
         tokenHash.setEmail(accountDto.getEmail());
         tokenHash.setRefreshToken(refreshToken);
         redisRepository.save(tokenHash);
+
+        String createJiraIssue = "지라 이슈 커밋용 코드 추가";
         return "{token:" + token + ", refreshToken:" + refreshToken;
     }
 
